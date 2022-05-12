@@ -65,6 +65,7 @@ def agent_q1(obs, config):
 def check_winning_move(obs, config, col, piece):
     # Convert the board to a 2D grid
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
+
     next_grid = drop_piece(grid, col, piece, config)
     # horizontal
     for row in range(config.rows):
@@ -82,6 +83,7 @@ def check_winning_move(obs, config, col, piece):
     for row in range(config.rows-(config.inarow-1)):
         for col in range(config.columns-(config.inarow-1)):
             window = list(next_grid[range(row, row+config.inarow), range(col, col+config.inarow)])
+
             if window.count(piece) == config.inarow:
                 return True
     # negative diagonal
@@ -98,7 +100,7 @@ def check_winning_move(obs, config, col, piece):
 # Gets board at next step if agent drops piece in selected column
 
 # start by copying the grid object by usingthe .copy() function
-def drop_piece(grid, col, piece, config):
+def drop_piece(grid, col, piece, config = { 'rows': 3 }):
     next_grid = grid.copy()
     for row in range(config.rows-1, -1, -1):
         if next_grid[row][col] == 0:

@@ -1,4 +1,36 @@
 # use heuristic method
+import random
+import numpy as np
+from kaggle_environments import make, evaluate
+
+def agent_random(obs, config):
+    valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
+    return random.choice(valid_moves)
+
+# Selects middle column
+def agent_middle(obs, config):
+    return config.columns//2
+
+# Selects leftmost valid column
+def agent_leftmost(obs, config):
+    print(obs.board)
+    grid = np.asarray(obs.board).reshape(config.rows, config.columns)
+    print(grid)
+    valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
+    return valid_moves[0]
+
+
+def agent(obs, config):
+    # Get list of valid moves
+    valid_moves = [c for c in range(config.columns) if obs.board[c] == 0]
+    # Convert the board to a 2D grid
+    grid = np.asarray(obs.board).reshape(config.rows, config.columns)
+    # Use the heuristic to assign a score to each possible board in the next turn
+    scores = dict(zip(valid_moves, [score_move(grid, col, obs.mark, config) for col in valid_moves]))
+    # Get a list of columns (moves) that maximize the heuristic
+    max_cols = [key for key in scores.keys() if scores[key] == max(scores.values())]
+    # Select at random from the maximizing columns
+    return random.choice(max_cols)
 
 def score_move(grid, col, mark, config):
     next_grid = drop_piece(grid, col, mark, config)
@@ -27,7 +59,7 @@ def get_heuristic(grid, mark, config):
 
 # Helper function for get_heuristic: checks if window satisfies heuristic conditions
 def check_window(window, num_discs, piece, config):
-    return (window.count(piece) == num_discs and window.count(0) == config.inarow - num_discs)
+    return window.count(piece) == num_discs and window.count(0) == config.inarow - num_discs
 
 
 # Helper function for get_heuristic: counts number of windows satisfying specified heuristic conditions
@@ -58,3 +90,24 @@ def count_windows(grid, num_discs, piece, config):
             if check_window(window, num_discs, piece, config):
                 num_windows += 1
     return num_windows
+
+
+
+
+
+# Create the game environment
+# Set debug=True to see the errors if your agent refuses to run
+def get_win_percentages(agent1, agent2, n_rounds=100):
+    # Use default Connect Four setup
+    config = {'rows': 6, 'columns': 7, 'inarow': 4}
+    # Agent 1 goes first (roughly) half the time
+    outcomes = evaluate("connectx", [agent1, agent2], config, [], n_rounds//2)
+    # Agent 2 goes first (roughly) half the time
+    outcomes += [[b,a] for [a,b] in evaluate("connectx", [agent2, agent1], config, [], n_rounds-n_rounds//2)]
+    print("Agent 1 Win Percentage:", np.round(outcomes.count([1,-1])/len(outcomes), 2))
+    print("Agent 2 Win Percentage:", np.round(outcomes.count([-1,1])/len(outcomes), 2))
+    print("Number of Invalid Plays by Agent 1:", outcomes.count([None, 0]))
+    print("Number of Invalid Plays by Agent 2:", outcomes.count([0, None]))
+
+
+get_win_percentages(agent, agent_leftmost, 200)

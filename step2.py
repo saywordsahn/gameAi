@@ -1,4 +1,5 @@
 import random
+import numpy as np
 # let's define some ais
 
 # Selects random valid column
@@ -12,6 +13,9 @@ def agent_middle(obs, config):
 
 # Selects leftmost valid column
 def agent_leftmost(obs, config):
+    print(obs.board)
+    grid = np.asarray(obs.board).reshape(config.rows, config.columns)
+    print(grid)
     valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
     return valid_moves[0]
 
