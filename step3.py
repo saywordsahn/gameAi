@@ -1,4 +1,4 @@
-
+import numpy as np
 from kaggle_environments import make, evaluate
 
 # Selects random valid column
@@ -21,21 +21,11 @@ import random
 
 
 # let's make a smarter game agent
-# how about an agent that makes a winning move if it can?
+# how about an agent that makes a winning move if it can, and a random valid move otherwise
 
-# HELPFUL functions to use
-import numpy as np
+# start by coding the agent, we'll need to create some helper functions along the way
+# add the obs and config as input to the functions
 
-# Gets board at next step if agent drops piece in selected column
-def drop_piece(grid, col, piece, config):
-    next_grid = grid.copy()
-    for row in range(config.rows-1, -1, -1):
-        if next_grid[row][col] == 0:
-            break
-    next_grid[row][col] = piece
-    return next_grid
-
-# Returns True if dropping piece in column results in game win
 # obs contains two pieces of information:
 #       obs.board - the game board (a Python list with one item for each grid location)
 #       obs.mark - the piece assigned to the agent (either 1 or 2)
@@ -45,6 +35,33 @@ def drop_piece(grid, col, piece, config):
 #       config.inarow - number of pieces a player needs to get in a row in order to win (4 for Connect Four)
 # col is any valid move
 # piece is either the agent's mark or the mark of its opponent
+
+
+# create a list of valid moves (0 to the number of columns)
+
+# for each move, check if it's the winning move
+
+# if it is, return that move
+# else, return a random play
+
+def agent_q1(obs, config):
+    valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
+
+    for move in valid_moves:
+        # lets make a check winning move function function, returns true if winning move
+        if check_winning_move(obs, config, move, obs.mark):
+            return move
+
+    return random.choice(valid_moves)
+
+
+
+# Returns True if dropping piece in column results in game win
+
+# first we need to convert the board to a grid - lets use numpys reshape function
+# create a new grid with the piece dropped in the col specified
+# lets create a function for this called drop_piece
+
 def check_winning_move(obs, config, col, piece):
     # Convert the board to a 2D grid
     grid = np.asarray(obs.board).reshape(config.rows, config.columns)
@@ -76,17 +93,26 @@ def check_winning_move(obs, config, col, piece):
     return False
 
 
+
+
+# Gets board at next step if agent drops piece in selected column
+
+# start by copying the grid object by usingthe .copy() function
+def drop_piece(grid, col, piece, config):
+    next_grid = grid.copy()
+    for row in range(config.rows-1, -1, -1):
+        if next_grid[row][col] == 0:
+            break
+    next_grid[row][col] = piece
+    return next_grid
+
+
+
+
 import random
 
 # an agent that selects a winning move if one exists, otherwise random
-def agent_q1(obs, config):
-    valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
 
-    for move in valid_moves:
-        if check_winning_move(obs, config, move, obs.mark):
-            return move
-
-    return random.choice(valid_moves)
 
 # selects a winning move if one exists, checks if it can block a winning move by opponent,
 # else plays random

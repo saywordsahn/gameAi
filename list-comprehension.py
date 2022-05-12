@@ -8,20 +8,13 @@ print(h_letters)
 
 
 # creating a list using comprehension
-h_letters = [ letter for letter in 'human' ]
-print( h_letters)
-
+h_letters = [letter for letter in 'human']
+print(h_letters)
 
 
 # conditionals in list comprehension
 number_list = [x for x in range(20) if x % 2 == 0]
 print(number_list)
-
-
-# you can append if statements on the end
-num_list = [y for y in range(100) if y % 2 == 0 if y % 5 == 0]
-print(num_list)
-
 
 # modifying the selector
 obj = ["Even" if i%2==0 else "Odd" for i in range(10)]
